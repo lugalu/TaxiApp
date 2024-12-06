@@ -4,7 +4,12 @@ import SwiftUI
 
 class RideRequestModel: ObservableObject {
     var serviceLocator: ServiceLocator
-    @Published var errorMessage: String?
+    @Published var shouldShowError: Bool = false
+    @Published var errorMessage: String = "" {
+        didSet {
+            shouldShowError = !errorMessage.isEmpty
+        }
+    }
     @Published var isLoading: Bool = false
     @Published var openOptions: Bool = false
     
@@ -26,37 +31,38 @@ class RideRequestModel: ObservableObject {
                         toggleLoading()
                     }
                 }
-                
+                throw NetworkErrors.malformedURL
                 let downloadService = serviceLocator.getNetworkInterface()
                 
                 guard let (data, response) = try await downloadService?.downloadData(
                     for: .rideEstimate(id: id, start: origin, end: destination)
                 ), let responseStatus = (response as? HTTPURLResponse)?.statusCode
                 else {
-                    errorMessage = "Um erro desconhecido aconteceu!"
+                    await setErrorMessage("Um erro desconhecido aconteceu!")
                     return
                 }
                 
                 guard responseStatus == 200 else {
                     let error = try DecoderService().decode(data, class: ErrorResponseJSON.self)
-                    errorMessage = error.error_description
+                    await setErrorMessage(error.error_description)
                     return
                     
                 }
                 
                 let decoderService = serviceLocator.getDecoderInterface()
                 guard let result =  try decoderService?.decode(data, class: RideJSON.self) else {
-                    errorMessage = "Um erro ocorreu! Por favor cheque se existe alguma atualização na loja e tente novamente"
+                    await setErrorMessage("Um erro ocorreu! Por favor cheque se existe alguma atualização na loja e tente novamente")
                     return
                 }
                 
                 print(result)
                 // Aqui a gente termina isso
             } catch NetworkErrors.malformedURL {
-                errorMessage = NetworkErrors.malformedURL.localizedDescription
+                await setErrorMessage(NetworkErrors.malformedURL.localizedDescription)
                 
             } catch {
-                errorMessage = "algum erro ocorreu com seu pedido, por favor tente novamente."
+                await setErrorMessage("algum erro ocorreu com seu pedido, por favor tente novamente.")
+               
                 
             }
             
@@ -74,6 +80,9 @@ class RideRequestModel: ObservableObject {
         return id.isEmpty || origin.isEmpty || destination.isEmpty
     }
 
-
+    @MainActor
+    private func setErrorMessage(_ message: String) {
+        errorMessage = message
+    }
     
 }

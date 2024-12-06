@@ -46,6 +46,15 @@ struct RideRequestView: View {
         .overlay {
             viewModel.isLoading ? makeLoading() : nil
         }
+        .alert("Erro", isPresented: $viewModel.shouldShowError, actions: {
+            Button {
+                viewModel.errorMessage = ""
+            } label: {
+                Text("Ok")
+            }
+        }, message: {
+            Text(viewModel.errorMessage)
+        })
     }
     
     
