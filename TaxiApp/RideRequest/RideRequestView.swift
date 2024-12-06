@@ -52,7 +52,7 @@ struct RideRequestView: View {
     @ViewBuilder
     func makeLoading() -> some View {
         ZStack{
-            Color.gray.background(.ultraThinMaterial)
+            Color.clear.background(.ultraThinMaterial)
             ProgressView()
                 .progressViewStyle(.circular)
                 .scaleEffect(3, anchor: .center)
