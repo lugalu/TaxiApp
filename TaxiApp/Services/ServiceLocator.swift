@@ -3,19 +3,25 @@
 import SwiftUI
 
 class ServiceLocator: ObservableObject, Observable {
-    private let networkService: NetworkInterface?
-    private let decoderService: DecoderInterface?
+    private let networkService: NetworkInterface
+    private let decoderService: DecoderInterface
+    private let mapService: MapInterface
     
-    init(networkService: NetworkInterface?, decoderService: DecoderInterface?) {
+    init(networkService: NetworkInterface, decoderService: DecoderInterface, mapService: MapInterface) {
         self.networkService = networkService
         self.decoderService = decoderService
+        self.mapService = mapService
     }
     
-    func getNetworkInterface() -> NetworkInterface? {
+    func getNetworkInterface() -> NetworkInterface {
         return networkService
     }
     
-    func getDecoderInterface() -> DecoderInterface? {
+    func getDecoderInterface() -> DecoderInterface {
         return decoderService
+    }
+    
+    func getMapInterface() -> MapInterface {
+        return mapService
     }
 }

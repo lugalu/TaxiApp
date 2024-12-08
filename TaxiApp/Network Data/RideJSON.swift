@@ -1,5 +1,6 @@
 //Created by Lugalu on 06/12/24.
 
+import MapKit
 
 struct RideJSON: Decodable {
     let origin: CoordinateJSON
@@ -26,6 +27,30 @@ struct RideJSON: Decodable {
             let comment: String
         }
     }
+}
+
+struct RideJSONtoData {
+    private init() {}
     
-    
+    static func map(json: RideJSON) -> RideData {
+        let origin = CLLocation(latitude: json.origin.latitude,
+                                longitude: json.origin.longitude)
+        let destination = CLLocation(latitude: json.destination.latitude,
+                                     longitude: json.destination.longitude)
+        let distance = json.distance
+        let duration = String(json.duration)
+        let drivers = json.options.map {
+            let review = ReviewData(rating: $0.review.rating, comment: $0.review.comment)
+            
+            return DriverData(id: $0.id,
+                       name: $0.name,
+                       description: $0.description,
+                       vehicle: $0.vehicle,
+                       review: review,
+                       value: $0.value
+            )
+        }
+        
+        return RideData(origin: origin, destination: destination, distance: distance, duration: duration, drivers: drivers)
+    }
 }

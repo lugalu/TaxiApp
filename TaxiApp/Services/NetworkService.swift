@@ -8,7 +8,7 @@ protocol NetworkInterface {
 
 enum NetworkOptions {
     case rideEstimate(id: String, start: String, end: String)
-    case confirm(rideData: RideConfimation)
+    case confirm(rideData: RideConfirmationBody)
     case list(id: String, driverID: Int)
 }
 

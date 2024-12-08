@@ -4,7 +4,7 @@ import SwiftUI
 
 @main
 struct TaxiAppApp: App {
-    var serviceLocator = ServiceLocator(networkService: NetworkService(), decoderService: DecoderService())
+    var serviceLocator = ServiceLocator(networkService: NetworkService(), decoderService: DecoderService(), mapService: MapService())
     
     var body: some Scene {
         WindowGroup {
