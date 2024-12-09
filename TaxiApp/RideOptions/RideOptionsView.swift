@@ -32,6 +32,7 @@ struct RideOptionsView: View {
         })
         .alert("Sucesso", isPresented: $viewModel.shouldShowRideFinished, actions: {
             Button {
+                viewModel.changeTab()
                 dismiss()
             } label: {
                 Text("Ok")

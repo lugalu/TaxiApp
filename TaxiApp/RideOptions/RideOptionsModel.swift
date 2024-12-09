@@ -153,4 +153,9 @@ class RideOptionsModel: ObservableObject {
         }
     }
     
+    func changeTab(){
+        Task { @MainActor in
+            locator.getTabBarService().goToHistoryPage()
+        }
+    }
 }
