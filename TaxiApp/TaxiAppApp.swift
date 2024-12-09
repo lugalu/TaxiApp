@@ -4,9 +4,20 @@ import SwiftUI
 
 @main
 struct TaxiAppApp: App {
+    var serviceLocator = ServiceLocator(networkService: NetworkService(), decoderService: DecoderService(), mapService: MapService())
+    
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            TabView{
+                RideRequestView()
+                    .environmentObject(RideRequestModel(locator: serviceLocator))
+                    .tabItem({
+                        Image(systemName: "car.fill")
+                        Text("Request a ride")
+                    })
+                
+            }
+            .environment(serviceLocator)
         }
     }
 }

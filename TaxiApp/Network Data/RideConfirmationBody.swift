@@ -2,16 +2,16 @@
 
 import Foundation
 
-struct RideConfimation: Encodable {
+struct RideConfirmationBody: Encodable {
     let id: String
     let origin: String
     let destination: String
     let distance: Double
     let duration: String
-    let driver: DriverInfo
+    let driver: DriverConfirmationInfo
     let value: Double
     
-    struct DriverInfo: Encodable {
+    struct DriverConfirmationInfo: Encodable {
         let id: Int
         let name: String
     }
@@ -32,7 +32,7 @@ struct RideConfimation: Encodable {
         self.destination = destination
         self.distance = distance
         self.duration = duration
-        self.driver = DriverInfo(id: driverID, name: driverName)
+        self.driver = DriverConfirmationInfo(id: driverID, name: driverName)
         self.value = value
     }
 
