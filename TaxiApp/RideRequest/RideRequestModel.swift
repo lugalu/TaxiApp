@@ -75,14 +75,14 @@ class RideRequestModel: ObservableObject {
                     return
                 }
                 
+                let decoderService = serviceLocator.getDecoderInterface()
                 guard responseStatus == 200 else {
-                    let error = try DecoderService().decode(data, class: ErrorResponseJSON.self)
+                    let error = try decoderService.decode(data, class: ErrorResponseJSON.self)
                     await setErrorMessage(error.error_description)
                     return
                     
                 }
                 
-                let decoderService = serviceLocator.getDecoderInterface()
                 let json = try decoderService.decode(data, class: RideJSON.self)
                 
                 guard !json.options.isEmpty else {
@@ -90,7 +90,7 @@ class RideRequestModel: ObservableObject {
                     return
                 }
                 
-                let result = RideJSONtoData.map(json: json)
+                let result = RideJSONtoData.map(customerId: id, originName: origin, destinationName: destination, json: json)
                 await goToNextScreen(ride: result)
 
             } catch NetworkErrors.malformedURL {

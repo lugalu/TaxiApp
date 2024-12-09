@@ -12,6 +12,7 @@ extension View {
                         ProgressView()
                             .progressViewStyle(.circular)
                             .scaleEffect(3, anchor: .center)
+                            .tint(.blue)
                     }
                 }
             }
@@ -23,3 +24,16 @@ extension View {
 }
 
 
+
+public struct InvertedLabelStyle: LabelStyle {
+    public func makeBody(configuration: Configuration) -> some View {
+        HStack(alignment: .firstTextBaseline, spacing: 2) {
+            configuration.title
+            configuration.icon
+        }
+    }
+}
+
+public extension LabelStyle where Self == InvertedLabelStyle {
+    @MainActor @preconcurrency static var invertedLabelStyle: InvertedLabelStyle { InvertedLabelStyle()}
+}

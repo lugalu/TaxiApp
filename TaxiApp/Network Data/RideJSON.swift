@@ -32,11 +32,12 @@ struct RideJSON: Decodable {
 struct RideJSONtoData {
     private init() {}
     
-    static func map(json: RideJSON) -> RideData {
+    static func map(customerId: String, originName: String, destinationName: String, json: RideJSON) -> RideData {
         let origin = CLLocation(latitude: json.origin.latitude,
                                 longitude: json.origin.longitude)
         let destination = CLLocation(latitude: json.destination.latitude,
                                      longitude: json.destination.longitude)
+        
         let distance = json.distance
         let duration = String(json.duration)
         let drivers = json.options.map {
@@ -51,6 +52,13 @@ struct RideJSONtoData {
             )
         }
         
-        return RideData(origin: origin, destination: destination, distance: distance, duration: duration, drivers: drivers)
+        return RideData(customerId: customerId,
+                        originName: originName,
+                        destinationName: destinationName,
+                        origin: origin,
+                        destination: destination,
+                        distance: distance,
+                        duration: duration,
+                        drivers: drivers)
     }
 }
