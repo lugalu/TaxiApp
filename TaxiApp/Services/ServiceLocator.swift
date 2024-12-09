@@ -6,9 +6,9 @@ class ServiceLocator: ObservableObject, Observable {
     private let networkService: NetworkInterface
     private let decoderService: DecoderInterface
     private let mapService: MapInterface
-    private let tabBarService: TabBarService
+    private let tabBarService: any TabBarInterface
     
-    init(networkService: NetworkInterface, decoderService: DecoderInterface, mapService: MapInterface, tabBarService: TabBarService) {
+    init(networkService: NetworkInterface, decoderService: DecoderInterface, mapService: MapInterface, tabBarService: any TabBarInterface) {
         self.networkService = networkService
         self.decoderService = decoderService
         self.mapService = mapService
@@ -27,7 +27,7 @@ class ServiceLocator: ObservableObject, Observable {
         return mapService
     }
     
-    func getTabBarService() -> TabBarService {
+    func getTabBarService() -> any TabBarInterface {
         return tabBarService
     }
 }

@@ -9,9 +9,10 @@ struct TaxiAppApp: App {
     @ObservedObject var tabBarService: TabBarService
     
     init() {
-        let service = ServiceLocator(networkService: NetworkService(), decoderService: DecoderService(), mapService: MapService(), tabBarService: TabBarService())
-        self.serviceLocator = service
-        self.tabBarService = service.getTabBarService()
+        let tabBar = TabBarService()
+        let serviceLocator = ServiceLocator(networkService: NetworkService(), decoderService: DecoderService(), mapService: MapService(), tabBarService: tabBar)
+        self.serviceLocator = serviceLocator
+        self.tabBarService = tabBar
     }
 
     var body: some Scene {

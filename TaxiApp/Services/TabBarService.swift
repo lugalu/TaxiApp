@@ -1,9 +1,13 @@
 //Created by Lugalu on 09/12/24.
 
-
 import SwiftUI
 
-class TabBarService: ObservableObject {
+protocol TabBarInterface: AnyObject, ObservableObject {
+    @MainActor func goToHistoryPage()
+}
+
+
+class TabBarService: ObservableObject, TabBarInterface {
     @Published var tabBarIndex: Int = 1
     
     @MainActor

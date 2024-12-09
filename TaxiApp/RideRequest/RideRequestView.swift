@@ -17,17 +17,17 @@ struct RideRequestView: View {
                 makeHistoryDropDown()
                 
                 Section("Informações") {
-                    makeFormsField($viewModel.id,
-                                   title: "Insira a identificação do usuário",
-                                   placeholder: "CT01")
+                    FormTextfield($viewModel.id,
+                                  title: "Insira a identificação do usuário",
+                                  placeholder: "CT01")
                     
-                    makeFormsField($viewModel.origin,
-                                   title: "Insira o local de partida",
-                                   placeholder: "Av. Pres. Kenedy, 2385 - Remédios, Osasco - SP, 02675-031")
+                    FormTextfield($viewModel.origin,
+                                  title: "Insira o local de partida",
+                                  placeholder: "Av. Pres. Kenedy, 2385 - Remédios, Osasco - SP, 02675-031")
                     
-                    makeFormsField($viewModel.destination,
-                                   title: "Insira o destino da corrida",
-                                   placeholder: "Av. Paulista, 1538 - Bela Vista, São Paulo - SP, 01310-200")
+                    FormTextfield($viewModel.destination,
+                                  title: "Insira o destino da corrida",
+                                  placeholder: "Av. Paulista, 1538 - Bela Vista, São Paulo - SP, 01310-200")
                     
                     makeConfirmButton()
                 }
@@ -42,8 +42,6 @@ struct RideRequestView: View {
                     )
              }
             
-            
-
         }
         .addLoadingOverlay($viewModel.isLoading)
         .alert("Erro", isPresented: $viewModel.shouldShowError, actions: {

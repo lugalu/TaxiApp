@@ -17,23 +17,9 @@ extension View {
                 }
             }
     }
-    
-    func isHidden(_ isHidden: Bool) -> some View {
-        self.opacity(isHidden ? 1 : 0)
-    }
+
 }
 
 
 
-public struct InvertedLabelStyle: LabelStyle {
-    public func makeBody(configuration: Configuration) -> some View {
-        HStack(alignment: .firstTextBaseline, spacing: 2) {
-            configuration.title
-            configuration.icon
-        }
-    }
-}
 
-public extension LabelStyle where Self == InvertedLabelStyle {
-    @MainActor @preconcurrency static var invertedLabelStyle: InvertedLabelStyle { InvertedLabelStyle()}
-}

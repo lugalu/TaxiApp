@@ -39,7 +39,7 @@ struct RideOptionsView: View {
             }
             
         }, message: {
-            Text("Viagem concluida com sucesso voltando ao menu principal")
+            Text("Viagem concluida com sucesso, você sera redirecionado para a tela de Historico")
         })
     }
     

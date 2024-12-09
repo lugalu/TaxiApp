@@ -42,8 +42,8 @@ class EndpointBuilder {
         case .confirm(let info):
             let data = try serialize(with: info)
             return ("PATCH","/ride/confirm", data)
-        case .list:
-            return ("GET", "/ride/", Data())
+        case .list(let id, let driverID):
+            return ("GET", "/ride/\(id)?driver_id=\(driverID)", Data())
         }
     }
     
