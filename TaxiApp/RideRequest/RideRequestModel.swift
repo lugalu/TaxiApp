@@ -54,33 +54,20 @@ class RideRequestModel: ObservableObject {
     func fetchRide() {
         Task {
             do {
-                await toggleLoading()
+                toggleLoading(true)
                 defer {
-                    Task { @MainActor in
-                        toggleLoading()
-                    }
+                    toggleLoading(false)
                 }
 
-                let downloadService = serviceLocator.getNetworkInterface()
-                let (data, response) = try await downloadService.downloadData(for:
-                        .rideEstimate(
-                            id: id,
-                            start: origin,
-                            end: destination
-                        )
-                )
+                let networkService = serviceLocator.getNetworkInterface()
+                let decoderService = serviceLocator.getDecoderInterface()
                 
-                guard let responseStatus = (response as? HTTPURLResponse)?.statusCode else {
-                    await setErrorMessage("Um erro desconhecido aconteceu!")
-                    return
+                let data = try await networkService.downloadAndCheck(for:  .rideEstimate(id: id, start: origin, end: destination), decoderService: DecoderService()) { errorDescription in
+                    await setErrorMessage(errorDescription)
                 }
                 
-                let decoderService = serviceLocator.getDecoderInterface()
-                guard responseStatus == 200 else {
-                    let error = try decoderService.decode(data, class: ErrorResponseJSON.self)
-                    await setErrorMessage(error.error_description)
+                guard let data else {
                     return
-                    
                 }
                 
                 let json = try decoderService.decode(data, class: RideJSON.self)
@@ -106,9 +93,10 @@ class RideRequestModel: ObservableObject {
         
     }
     
-    @MainActor
-    private func toggleLoading() {
-        isLoading.toggle()
+    private func toggleLoading(_ value: Bool) {
+        Task { @MainActor in
+            self.isLoading = value
+        }
     }
     
     @MainActor

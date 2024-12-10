@@ -6,14 +6,7 @@ class EndpointBuilder {
     private init() {}
     
     static func build(for option: NetworkOptions) throws -> URLRequest {
-        let urlScheme = "https"
-        let hostURL = "xd5zl5kk2yltomvw5fb37y3bm40vsyrx.lambda-url.sa-east-1.on.aws"
-        let (type, urlPath, urlBody) = try getRequestData(for: option)
-        
-        var components = URLComponents()
-        components.scheme = urlScheme
-        components.host = hostURL
-        components.path = urlPath
+        let (components, type, body) = try getURLComponents(for: option)
         
         guard let url = components.url else {
             throw NetworkErrors.malformedURL
@@ -21,30 +14,53 @@ class EndpointBuilder {
         
         var request = URLRequest(url: url)
         request.httpMethod = type
-        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-        request.httpBody = urlBody
+        if let body{
+            request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+            request.httpBody = body
+        }
         
         return request
     }
-
     
-    private static func getRequestData(for option: NetworkOptions) throws -> (type: String, path: String, body: Data)  {
+    private static func getURLComponents(for option: NetworkOptions) throws -> (component: URLComponents,type: String, body: Data?) {
+        let urlScheme = "https"
+        let hostURL = "xd5zl5kk2yltomvw5fb37y3bm40vsyrx.lambda-url.sa-east-1.on.aws"
+        
+        var urlBody: Data? = nil
+        var urlType = ""
+        var urlComponents = URLComponents()
+        urlComponents.scheme = urlScheme
+        urlComponents.host = hostURL
+        
         switch option {
-        case .rideEstimate(let id,let start, let end):
+        case .rideEstimate(let id, let start, let end):
             let body: [String: String] = [
-                "customer_id": id,
-                "origin": start,
-                "destination": end
-            ]
-            let bodyData = try serialize(with: body)
+                            "customer_id": id,
+                            "origin": start,
+                            "destination": end
+                        ]
+            urlBody = try serialize(with: body)
+            urlComponents.path = "/ride/estimate"
+            urlType = "POST"
             
-            return ("POST","/ride/estimate", bodyData)
-        case .confirm(let info):
-            let data = try serialize(with: info)
-            return ("PATCH","/ride/confirm", data)
-        case .list:
-            return ("GET", "/ride/", Data())
+        case .confirm(let rideData):
+            let data = try serialize(with: rideData)
+            urlBody = data
+            urlType = "PATCH"
+            urlComponents.path = "/ride/confirm"
+            
+        case .list(let id, let driverID):
+            let query = [
+                URLQueryItem(name: "driver_id", value: String(driverID))
+            ]
+            urlComponents.path = "/ride/\(id)"
+            urlComponents.queryItems = query
+            urlType = "GET"
+            
         }
+        
+        
+        return (urlComponents, urlType, urlBody)
     }
     
     
