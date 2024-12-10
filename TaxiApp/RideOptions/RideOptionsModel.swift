@@ -70,32 +70,21 @@ class RideOptionsModel: ObservableObject {
                 }
                 
                 let networkService = locator.getNetworkInterface()
-                
-                let confirmationBody = RideDataToConfirmation.map(data: rideDetails, driver: driver)
-                let (data, response) = try await networkService.downloadData(for: .confirm(rideData: confirmationBody))
-                
-                guard let responseStatus = (response as? HTTPURLResponse)?.statusCode else {
-                    await setErrorMessage("Um erro desconhecido aconteceu!")
-                    return
-                }
-                
                 let decoderService = locator.getDecoderInterface()
-                guard responseStatus == 200 else {
-                    let error = try decoderService.decode(data, class: ErrorResponseJSON.self)
-                    await setErrorMessage(error.error_description)
-                    return
+
+                let confirmationBody = RideDataToConfirmation.map(data: rideDetails, driver: driver)
+                let data = try await networkService.downloadAndCheck(for: .confirm(rideData: confirmationBody), decoderService: decoderService) { errorDescription in
+                    await self.setErrorMessage(errorDescription)
                 }
-            
+                
+                guard data != nil else { return }
+          
                 await didFinishRequest()
-                
-                
+    
             }  catch NetworkErrors.malformedURL {
                 await setErrorMessage(NetworkErrors.malformedURL.localizedDescription)
-                
             } catch {
                 await setErrorMessage("algum erro ocorreu com seu pedido, por favor tente novamente.")
-               
-                
             }
         }
     }
