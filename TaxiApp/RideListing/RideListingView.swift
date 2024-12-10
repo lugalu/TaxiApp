@@ -8,18 +8,17 @@ struct RideListingView: View {
 
     var body: some View {
             List {
-                LazyVStack {
                     makeHeader()
-                    Divider()
-                    
+                
                     if viewModel.history.isEmpty {
                         Text("Não há informações disponiveis")
                     }else {
                         ForEach(viewModel.history) { entry in
                             makeCell(entry: entry)
+                                .listRowSeparator(.visible)
+                                .listRowSeparatorTint(.secondary)
                         }
                     }
-                }
             }
             .addLoadingOverlay($viewModel.isLoading)
             .listStyle(.plain)
