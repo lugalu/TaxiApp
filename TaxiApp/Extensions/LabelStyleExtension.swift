@@ -2,8 +2,6 @@
 
 import SwiftUI
 
-
-
 public extension LabelStyle where Self == InvertedLabelStyle {
     static var invertedLabelStyle: InvertedLabelStyle { InvertedLabelStyle() }
 }

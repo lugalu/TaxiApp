@@ -111,7 +111,6 @@ struct RideOptionsView: View {
                 
                 VStack(alignment: .leading){
                     Text(viewModel.formatMoney(driver.value))
-                    Text(viewModel.formatDistance(rideDetail.distance))
                 }
                 .padding(.horizontal, 4)
                 

@@ -5,8 +5,8 @@ import SwiftUI
 class RideListingModel: ObservableObject {
     let locator: ServiceLocator
     
-    @Published var id: String = ""
-    @Published var selectedDriverId: Int = 0
+    @Published var id = ""
+    @Published var selectedDriverId = 0
     var drivers: [(Int, String)] = [
         (0, ""),
         (1, "Homer"),
@@ -15,7 +15,16 @@ class RideListingModel: ObservableObject {
         (4, "Mostrar todos")
     ]
     
-//    @Published var history: []
+    @Published var isLoading = false
+    @Published var shouldDisplayError = false
+    @Published var errorMessage = "" {
+        didSet {
+            guard !errorMessage.isEmpty else { return }
+            shouldDisplayError = true
+        }
+    }
+    
+    @Published var history: [HistoryData] = []
     
     init(locator: ServiceLocator) {
         self.locator = locator
@@ -25,76 +34,86 @@ class RideListingModel: ObservableObject {
         return id.isEmpty || selectedDriverId == 0
     }
     
-    
     func fetchHistory() {
         Task {
             do{
-                let data = try await selectedDriverId == 4 ? fetchAll() : fetchSingle(driverId: selectedDriverId)
+                setIsLoading(true)
+                defer {
+                    setIsLoading(false)
+                }
                 
+                let data = try await selectedDriverId == 4 ? fetchAll() : fetchSingle(driverId: selectedDriverId)
+                await setHistory(newValues: data)
+            } catch NetworkErrors.emptyResponse {
+                await setErrorMessage(NetworkErrors.emptyResponse.localizedDescription)
             } catch {
-                print("hm")
+                await setErrorMessage("Um erro aconteceu")
             }
         }
     }
     
     
-    func fetchSingle(driverId: Int) async throws -> HistoryData? {
+    private func fetchSingle(driverId: Int) async throws -> [HistoryData] {
         let downloadService = locator.getNetworkInterface()
-        let (data, response) = try await downloadService.downloadData(for: .list(id: self.id, driverID: driverId))
+        let decoderService = locator.getDecoderInterface()
+        let data = try await downloadService.downloadAndCheck(for: .list(id: id, driverID: driverId), decoderService: decoderService) { errorDescription in
+            await setErrorMessage(errorDescription)
+        }
         
-        return nil
-    }
-    
-    func fetchAll() async throws -> HistoryData? {
-        return nil
-    }
-    
-}
-
-struct HistoryEntryJSON: Decodable {
-    let rides: [HistoryRideJSON]
-    
-
-    struct HistoryRideJSON: Decodable {
-        let date: String
-        let origin: String
-        let destination: String
-        let distance: Double
-        let duration: String
-        let driver: HistoryDriverJSON
-        let value: Double
-    }
-    
-    struct HistoryDriverJSON: Decodable {
-        let name: String
-    }
-}
-
-struct HistoryJSONtoHistoryData {
-    private init() {}
-    
-    static func map(_ history: HistoryEntryJSON) throws -> [HistoryData] {
-        var result: [HistoryData] = []
+        guard let data else { return [] }
         
-        try history.rides.forEach { ride in
-            let date = try Date(ride.date, strategy: .dateTime)
-            let time = try Date(ride.duration, strategy: .dateTime)
-            let name = ride.driver.name
-            
-            let newData = HistoryData(date: date, origin: ride.origin, destination: ride.destination, distance: ride.distance, duration: time, driverName: name, value: ride.value)
-            result.append(newData)
+        let json = try decoderService.decode(data, class: HistoryEntryJSON.self)
+        let result = try HistoryJSONtoHistoryData.map(json)
+        
+        guard !result.isEmpty else {
+            throw NetworkErrors.emptyResponse
         }
         
         return result
     }
+    
+    private func fetchAll() async throws -> [HistoryData] {
+        async let driverOne = fetchSingle(driverId: 1)
+        async let driverTwo = fetchSingle(driverId: 2)
+        async let driverThree = fetchSingle(driverId: 3)
+        
+        let (arrayOne, arrayTwo, arrayThree) = (try? await (driverOne, driverTwo, driverThree)) ?? (nil,nil,nil)
+        
+        let result = (arrayOne ?? []) + (arrayTwo ?? []) + (arrayThree ?? [])
+        
+        guard !result.isEmpty else {
+            throw NetworkErrors.emptyResponse
+        }
+        
+        return result
+    }
+    
+    private func setIsLoading(_ value: Bool) {
+        Task{ @MainActor in
+            self.isLoading = value
+        }
+    }
+    
+    @MainActor
+    private func setHistory(newValues: [HistoryData]) {
+        history = newValues
+    }
+    
+    @MainActor
+    private func setErrorMessage(_ message: String){
+        self.errorMessage = message
+    }
+    
+    func formatMoney(_ value: Double) -> String {
+        let asNumber = NSNumber(floatLiteral: value)
+        let formatter = NumberFormatter()
+        formatter.numberStyle = .currency
+        return formatter.string(from: asNumber) ?? ("R$" + String(value))
+    }
+    
 }
 
-struct HistoryData {
-    let date: Date
-    let origin: String
-    let destination: String
-    let distance: Double
-    let duration: Date
-    let driverName: String
-    let value: Double
-}
+
+
+
+

@@ -1,6 +1,7 @@
 //Created by Lugalu on 06/12/24.
 
 import SwiftUI
+import UIKit
 
 @main
 struct TaxiAppApp: App {
@@ -25,7 +26,7 @@ struct TaxiAppApp: App {
                         Text("Pedir uma viagem")
                     })
                     .tag(1)
-                
+
                 RideListingView()
                     .environmentObject(RideListingModel(locator: serviceLocator))
                     .tabItem({
@@ -33,8 +34,10 @@ struct TaxiAppApp: App {
                         Text("Historico de viagens")
                     })
                     .tag(2)
+
             }
             .environment(serviceLocator)
         }
+
     }
 }

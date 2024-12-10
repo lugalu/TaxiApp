@@ -62,11 +62,9 @@ class RideOptionsModel: ObservableObject {
                     return
                 }
                 
-                await setLoading(status: true)
-                defer{
-                    Task{ @MainActor in
+                setLoading(status: true)
+                defer {
                         setLoading(status: false)
-                    }
                 }
                 
                 let networkService = locator.getNetworkInterface()
@@ -91,8 +89,10 @@ class RideOptionsModel: ObservableObject {
     
    
     
-    @MainActor func setLoading(status: Bool) {
-        self.isNetworkLoading = status
+    func setLoading(status: Bool) {
+        Task { @MainActor in
+            self.isNetworkLoading = status
+        }
     }
     
     @MainActor

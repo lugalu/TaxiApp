@@ -54,11 +54,9 @@ class RideRequestModel: ObservableObject {
     func fetchRide() {
         Task {
             do {
-                await toggleLoading()
+                toggleLoading(true)
                 defer {
-                    Task { @MainActor in
-                        toggleLoading()
-                    }
+                    toggleLoading(false)
                 }
 
                 let networkService = serviceLocator.getNetworkInterface()
@@ -95,9 +93,10 @@ class RideRequestModel: ObservableObject {
         
     }
     
-    @MainActor
-    private func toggleLoading() {
-        isLoading.toggle()
+    private func toggleLoading(_ value: Bool) {
+        Task { @MainActor in
+            self.isLoading = value
+        }
     }
     
     @MainActor

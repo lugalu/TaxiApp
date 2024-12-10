@@ -41,7 +41,6 @@ struct RideRequestView: View {
                                                         locator: viewModel.serviceLocator)
                     )
              }
-            
         }
         .addLoadingOverlay($viewModel.isLoading)
         .alert("Erro", isPresented: $viewModel.shouldShowError, actions: {
@@ -54,6 +53,7 @@ struct RideRequestView: View {
         }, message: {
             Text(viewModel.errorMessage)
         })
+        
     }
     
     
